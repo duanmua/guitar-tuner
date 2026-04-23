@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guitar & Ukulele Tuner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f0;
+      color: #1a1a18;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a18; color: #f0ede6; }
+    }
+
+    .container { width: 100%; max-width: 480px; }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      color: inherit;
+    }
+
+    .instrument-section { margin-bottom: 2rem; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #888780;
+      margin-bottom: 10px;
+    }
+
+    .string-grid { display: grid; gap: 8px; }
+
+    .string-btn {
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.18);
+      border-radius: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.12s, border-color 0.12s;
+      text-align: left;
+      width: 100%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .string-btn { background: #2c2c2a; border-color: rgba(255,255,255,0.12); }
+      .string-btn:hover { background: #3a3a38; }
+    }
+
+    .string-btn:hover { background: #f0ede6; border-color: rgba(0,0,0,0.3); }
+
+    .string-btn.active {
+      border-color: #378add;
+      background: #e6f1fb;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .string-btn.active { background: #0c447c; border-color: #85b7eb; }
+    }
+
+    .string-name {
+      font-size: 22px;
+      font-weight: 500;
+      color: inherit;
+    }
+
+    .string-btn.active .string-name { color: #185fa5; }
+
+    @media (prefers-color-scheme: dark) {
+      .string-btn.active .string-name { color: #b5d4f4; }
+    }
+
+    .string-meta { text-align: right; }
+
+    .string-hz {
+      font-size: 14px;
+      font-weight: 500;
+      color: inherit;
+      display: block;
+    }
+
+    .string-num {
+      font-size: 11px;
+      color: #888780;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .stop-btn {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 0.5px solid rgba(0,0,0,0.15);
+      border-radius: 8px;
+      color: #888780;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .stop-btn:hover { background: rgba(0,0,0,0.05); }
+    .stop-btn.visible { display: block; }
+
+    @media (prefers-color-scheme: dark) {
+      .stop-btn { border-color: rgba(255,255,255,0.12); }
+      .stop-btn:hover { background: rgba(255,255,255,0.06); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Guitar &amp; Ukulele Tuner</h1>
+
+    <div class="instrument-section">
+      <div class="section-label">Guitar &mdash; standard E A D G B E</div>
+      <div class="string-grid" id="guitar-grid"></div>
+    </div>
+
+    <div class="instrument-section">
+      <div class="section-label">Ukulele &mdash; standard G C E A</div>
+      <div class="string-grid" id="uke-grid"></div>
+    </div>
+
+    <button class="stop-btn" id="stop-btn" onclick="stopAll()">Stop</button>
+  </div>
+
+  <script>
+    const guitarStrings = [
+      { name: 'E2', hz: 82.41,  num: 'String 6 (low E)' },
+      { name: 'A2', hz: 110.00, num: 'String 5' },
+      { name: 'D3', hz: 146.83, num: 'String 4' },
+      { name: 'G3', hz: 196.00, num: 'String 3' },
+      { name: 'B3', hz: 246.94, num: 'String 2' },
+      { name: 'E4', hz: 329.63, num: 'String 1 (high E)' },
+    ];
+    const ukeStrings = [
+      { name: 'G4', hz: 392.00, num: 'String 4' },
+      { name: 'C4', hz: 261.63, num: 'String 3' },
+      { name: 'E4', hz: 329.63, num: 'String 2' },
+      { name: 'A4', hz: 440.00, num: 'String 1' },
+    ];
+
+    let ctx = null, oscNode = null, gainNode = null, activeBtn = null;
+
+    function getCtx() {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      return ctx;
+    }
+
+    function playNote(hz, btn) {
+      stopAll(false);
+      const ac = getCtx();
+      oscNode = ac.createOscillator();
+      gainNode = ac.createGain();
+      oscNode.type = 'sine';
+      oscNode.frequency.setValueAtTime(hz, ac.currentTime);
+      gainNode.gain.setValueAtTime(0, ac.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.4, ac.currentTime + 0.015);
+      oscNode.connect(gainNode);
+      gainNode.connect(ac.destination);
+      oscNode.start();
+      activeBtn = btn;
+      btn.classList.add('active');
+      document.getElementById('stop-btn').classList.add('visible');
+    }
+
+    function stopAll(clearBtn = true) {
+      if (gainNode && oscNode) {
+        const ac = getCtx();
+        gainNode.gain.setValueAtTime(gainNode.gain.value, ac.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, ac.currentTime + 0.015);
+        const o = oscNode, g = gainNode;
+        setTimeout(() => { try { o.stop(); } catch(e){} g.disconnect(); }, 20);
+        oscNode = null;
+        gainNode = null;
+      }
+      if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+      if (clearBtn) document.getElementById('stop-btn').classList.remove('visible');
+    }
+
+    function makeBtn(s) {
+      const btn = document.createElement('button');
+      btn.className = 'string-btn';
+      btn.innerHTML = `
+        <span class="string-name">${s.name}</span>
+        <span class="string-meta">
+          <span class="string-hz">${s.hz.toFixed(2)} Hz</span>
+          <span class="string-num">${s.num}</span>
+        </span>`;
+      btn.onclick = () => {
+        if (btn.classList.contains('active')) { stopAll(); return; }
+        playNote(s.hz, btn);
+      };
+      return btn;
+    }
+
+    guitarStrings.forEach(s => document.getElementById('guitar-grid').appendChild(makeBtn(s)));
+    ukeStrings.forEach(s => document.getElementById('uke-grid').appendChild(makeBtn(s)));
+  </script>
+</body>
+</html>
