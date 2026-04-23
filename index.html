@@ -23,12 +23,7 @@
 
     .container { width: 100%; max-width: 480px; }
 
-    h1 {
-      font-size: 20px;
-      font-weight: 500;
-      margin-bottom: 2rem;
-      color: inherit;
-    }
+    h1 { font-size: 20px; font-weight: 500; margin-bottom: 2rem; }
 
     .instrument-section { margin-bottom: 2rem; }
 
@@ -57,28 +52,16 @@
       width: 100%;
     }
 
+    .string-btn:hover { background: #f0ede6; border-color: rgba(0,0,0,0.3); }
+    .string-btn.active { border-color: #378add; background: #e6f1fb; }
+
     @media (prefers-color-scheme: dark) {
       .string-btn { background: #2c2c2a; border-color: rgba(255,255,255,0.12); }
       .string-btn:hover { background: #3a3a38; }
-    }
-
-    .string-btn:hover { background: #f0ede6; border-color: rgba(0,0,0,0.3); }
-
-    .string-btn.active {
-      border-color: #378add;
-      background: #e6f1fb;
-    }
-
-    @media (prefers-color-scheme: dark) {
       .string-btn.active { background: #0c447c; border-color: #85b7eb; }
     }
 
-    .string-name {
-      font-size: 22px;
-      font-weight: 500;
-      color: inherit;
-    }
-
+    .string-name { font-size: 22px; font-weight: 500; }
     .string-btn.active .string-name { color: #185fa5; }
 
     @media (prefers-color-scheme: dark) {
@@ -86,20 +69,8 @@
     }
 
     .string-meta { text-align: right; }
-
-    .string-hz {
-      font-size: 14px;
-      font-weight: 500;
-      color: inherit;
-      display: block;
-    }
-
-    .string-num {
-      font-size: 11px;
-      color: #888780;
-      display: block;
-      margin-top: 2px;
-    }
+    .string-hz { font-size: 14px; font-weight: 500; display: block; }
+    .string-num { font-size: 11px; color: #888780; display: block; margin-top: 2px; }
 
     .stop-btn {
       display: none;
@@ -114,7 +85,6 @@
       cursor: pointer;
       transition: background 0.12s;
     }
-
     .stop-btn:hover { background: rgba(0,0,0,0.05); }
     .stop-btn.visible { display: block; }
 
@@ -122,6 +92,45 @@
       .stop-btn { border-color: rgba(255,255,255,0.12); }
       .stop-btn:hover { background: rgba(255,255,255,0.06); }
     }
+
+    .wave-picker {
+      display: flex;
+      gap: 8px;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 0.5px solid rgba(0,0,0,0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .wave-picker { border-top-color: rgba(255,255,255,0.1); }
+    }
+
+    .wave-btn {
+      flex: 1;
+      padding: 9px 4px;
+      background: #ffffff;
+      border: 0.5px solid rgba(0,0,0,0.18);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s, border-color 0.12s;
+      color: #1a1a18;
+    }
+
+    .wave-btn:hover { background: #f0ede6; }
+    .wave-btn.selected { border-color: #378add; background: #e6f1fb; color: #185fa5; }
+
+    @media (prefers-color-scheme: dark) {
+      .wave-btn { background: #2c2c2a; border-color: rgba(255,255,255,0.12); color: #f0ede6; }
+      .wave-btn:hover { background: #3a3a38; }
+      .wave-btn.selected { background: #0c447c; border-color: #85b7eb; color: #b5d4f4; }
+    }
+
+    .wave-label { font-size: 12px; color: #888780; }
+    .wave-btn.selected .wave-label { color: inherit; }
   </style>
 </head>
 <body>
@@ -139,6 +148,33 @@
     </div>
 
     <button class="stop-btn" id="stop-btn" onclick="stopAll()">Stop</button>
+
+    <div class="wave-picker">
+      <button class="wave-btn" data-wave="sawtooth" onclick="setWave('sawtooth')">
+        <svg width="48" height="24" viewBox="0 0 48 24" fill="none">
+          <polyline points="0,20 16,4 16,20 32,4 32,20 48,4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/>
+        </svg>
+        <span class="wave-label">Sawtooth</span>
+      </button>
+      <button class="wave-btn" data-wave="triangle" onclick="setWave('triangle')">
+        <svg width="48" height="24" viewBox="0 0 48 24" fill="none">
+          <polyline points="0,20 12,4 24,20 36,4 48,20" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span class="wave-label">Triangle</span>
+      </button>
+      <button class="wave-btn" data-wave="square" onclick="setWave('square')">
+        <svg width="48" height="24" viewBox="0 0 48 24" fill="none">
+          <polyline points="0,20 0,4 24,4 24,20 48,20 48,4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="square"/>
+        </svg>
+        <span class="wave-label">Square</span>
+      </button>
+      <button class="wave-btn" data-wave="sine" onclick="setWave('sine')">
+        <svg width="48" height="24" viewBox="0 0 48 24" fill="none">
+          <path d="M0,12 C6,12 6,4 12,4 C18,4 18,20 24,20 C30,20 30,4 36,4 C42,4 42,12 48,12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span class="wave-label">Sine</span>
+      </button>
+    </div>
   </div>
 
   <script>
@@ -158,27 +194,50 @@
     ];
 
     let ctx = null, oscNode = null, gainNode = null, activeBtn = null;
+    let currentWave = 'sawtooth', activeHz = null;
 
     function getCtx() {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
       return ctx;
     }
 
-    function playNote(hz, btn) {
-      stopAll(false);
+    function setWave(type) {
+      currentWave = type;
+      document.querySelectorAll('.wave-btn').forEach(b => b.classList.toggle('selected', b.dataset.wave === type));
+      if (activeHz !== null) playNote(activeHz, activeBtn, true);
+    }
+
+    function playNote(hz, btn, seamless) {
       const ac = getCtx();
-      oscNode = ac.createOscillator();
-      gainNode = ac.createGain();
-      oscNode.type = 'sine';
-      oscNode.frequency.setValueAtTime(hz, ac.currentTime);
-      gainNode.gain.setValueAtTime(0, ac.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.4, ac.currentTime + 0.015);
-      oscNode.connect(gainNode);
-      gainNode.connect(ac.destination);
-      oscNode.start();
-      activeBtn = btn;
-      btn.classList.add('active');
-      document.getElementById('stop-btn').classList.add('visible');
+      const newOsc = ac.createOscillator();
+      const newGain = ac.createGain();
+      newOsc.type = currentWave;
+      newOsc.frequency.setValueAtTime(hz, ac.currentTime);
+      newGain.gain.setValueAtTime(0, ac.currentTime);
+      newGain.gain.linearRampToValueAtTime(0.4, ac.currentTime + 0.015);
+      newOsc.connect(newGain);
+      newGain.connect(ac.destination);
+      newOsc.start();
+
+      if (seamless && gainNode && oscNode) {
+        const oldGain = gainNode, oldOsc = oscNode;
+        oldGain.gain.setValueAtTime(oldGain.gain.value, ac.currentTime);
+        oldGain.gain.linearRampToValueAtTime(0, ac.currentTime + 0.015);
+        setTimeout(() => { try { oldOsc.stop(); } catch(e){} oldGain.disconnect(); }, 20);
+      } else {
+        if (!seamless) stopAll(false);
+      }
+
+      oscNode = newOsc;
+      gainNode = newGain;
+      activeHz = hz;
+
+      if (!seamless) {
+        if (activeBtn) activeBtn.classList.remove('active');
+        activeBtn = btn;
+        btn.classList.add('active');
+        document.getElementById('stop-btn').classList.add('visible');
+      }
     }
 
     function stopAll(clearBtn = true) {
@@ -188,10 +247,10 @@
         gainNode.gain.linearRampToValueAtTime(0, ac.currentTime + 0.015);
         const o = oscNode, g = gainNode;
         setTimeout(() => { try { o.stop(); } catch(e){} g.disconnect(); }, 20);
-        oscNode = null;
-        gainNode = null;
+        oscNode = null; gainNode = null;
       }
       if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+      activeHz = null;
       if (clearBtn) document.getElementById('stop-btn').classList.remove('visible');
     }
 
@@ -206,13 +265,14 @@
         </span>`;
       btn.onclick = () => {
         if (btn.classList.contains('active')) { stopAll(); return; }
-        playNote(s.hz, btn);
+        playNote(s.hz, btn, false);
       };
       return btn;
     }
 
     guitarStrings.forEach(s => document.getElementById('guitar-grid').appendChild(makeBtn(s)));
     ukeStrings.forEach(s => document.getElementById('uke-grid').appendChild(makeBtn(s)));
+    setWave('triangle');
   </script>
 </body>
 </html>
